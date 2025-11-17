@@ -28,7 +28,7 @@ public class macanumtest {
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         imu = hwMap.get(IMU.class, "imu");
 
@@ -46,17 +46,22 @@ public class macanumtest {
         double frontRightPower = forward - strafe - rotate;
         double backRightPower = forward + strafe - rotate;
 
-        double maxPower = 1.0;
-        double maxSpeed = 0.5;
-        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
-        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
-        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
-        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+        double maxPower = Math.max(
+            Math.max(Math.abs(frontLeftPower), Math.abs(backLeftPower)),
+            Math.max(Math.abs(frontRightPower), Math.abs(backRightPower))
+        );
 
-        frontLeftMotor.setPower(maxPower * (frontLeftPower / maxPower));
-        backLeftMotor.setPower(maxPower * (backLeftPower / maxPower));
-        frontRightMotor.setPower(maxPower * (frontRightPower / maxPower));
-        backRightMotor.setPower(maxPower * (backRightPower / maxPower));
+        if (maxPower > 1.0) {
+            frontLeftMotor.setPower(frontLeftPower / maxPower);
+            backLeftMotor.setPower(backLeftPower / maxPower);
+            frontRightMotor.setPower(frontRightPower / maxPower);
+            backRightMotor.setPower(backRightPower / maxPower);
+        } else {
+            frontLeftMotor.setPower(frontLeftPower);
+            backLeftMotor.setPower(backLeftPower);
+            frontRightMotor.setPower(frontRightPower);
+            backRightMotor.setPower(backRightPower);
+        }
     }
 
     public void driveFieldRelative(double forward, double strafe, double rotate) {
